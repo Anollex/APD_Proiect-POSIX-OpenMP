@@ -35,11 +35,7 @@ typedef enum {
     WEST    //11 ^ 0x0001 = 10
 }Directions;
 
-void personScan(char* path, Person* person);
 void updateLocation(Person person);
-void computeNextStatus(Person person);
-void updateStatus(Person person);
-
 
 int main(int argc, const char * argv[]) {
     Person person[10];
@@ -55,46 +51,9 @@ int main(int argc, const char * argv[]) {
 }
 
 /*-----------------------------------------------------------------
- * Function:  Person Scan
- * Purpose:   Input the date of all person
- * In args:   path, person
- */
-void personScan(char* path, Person* person) {
-
-}
-
-/*-----------------------------------------------------------------
- * Function:  Person Print
- * Purpose:   Output the data  of all persons
- * In args:   path, person
- */
-void personPrint(char* path, Person* person) {
-
-}
-
-/*-----------------------------------------------------------------
  * Function:  Update Location
- * Purpose:   Update the location of a person and take care of out of test area
+ * Purpose:   Print if the list are not the same and exit with -1 code
  * In args:   person
  */
 void updateLocation(Person person) {
-
-}
-
-/*-----------------------------------------------------------------
- * Function:  Compute NextStatus
- * Purpose:   Compute the next status for a person
- * In args:   person
- */
-void computeNextStatus(Person person) {
-
-}
-
-/*-----------------------------------------------------------------
- * Function:  Update Status
- * Purpose:   Update the status to next status of a persons
- * In args:   person
- */
-void updateStatus(Person person) {
-
 }
