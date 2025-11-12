@@ -7,6 +7,13 @@
 // #define DEBUG 1
 
 typedef struct {
+    int maxXCoord;
+    int maxYCoord;
+    int numberOfPersons;
+    int simulationTime;
+}SimulationData;
+
+typedef struct {
     int x;
     int y;
 }Coordinate;
@@ -36,32 +43,48 @@ typedef enum {
 }Directions;
 
 
-void personScan(char* path, Person* person);
+void personScan(FILE *file, Person *person);
 void updateLocation(Person person);
 void computeNextStatus(Person person);
 void updateStatus(Person person);
 
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[]) {
     Person person[10];
-    int maxXCoord = 0;
-    int maxYCoord = 0;
-    int numOfPersons = 0;
-    int threadCount = atoi(argv[3]);
-    int simulationTime = atoi(argv[1]);
     char* path = argv[2];
 
+    FILE *inputFile = fopen(path, "r");
+    if(!inputFile) {
+        perror("File not found!\n");
+        exit(-1);
+    }
+
+    
+
+    if(fclose(inputFile) != 0) {
+        perror("File could not be closed\n");
+        exit(-1);
+    }
 
     return 0;
 }
 
 /*-----------------------------------------------------------------
-<<<<<<< HEAD
  * Function:  Person Scan
- * Purpose:   Input the date of all person
+ * Purpose:   Input data into Person array from file with pathname given by path parameter 
  * In args:   path, person
  */
-void personScan(char* path, Person* person) {
+void personScan(FILE *file, Person *person) {
+
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Simulation Init
+ * Purpose:   Initializes the simulation data
+ * In args:   simulation, simulationTime
+ */
+void simulationInit(SimulationData simulation, int simulationTime) {
+    // read data
 
 }
 
@@ -70,7 +93,7 @@ void personScan(char* path, Person* person) {
  * Purpose:   Output the data  of all persons
  * In args:   path, person
  */
-void personPrint(char* path, Person* person) {
+void personPrint(char *path, Person *person) {
 
 }
 
