@@ -49,9 +49,9 @@ void Usage();
 void simulationScan(FILE *file, SimulationData *simulation);
 void personScan(FILE *file, Person *person, SimulationData simulation);
 void personPrint(FILE *file, Person *person, SimulationData simulation);
-void updateLocation(Person person);
-void computeNextStatus(Person person);
-void updateStatus(Person person);
+void updateLocation(Person *person, SimulationData *simulation);
+void computeNextStatus(Person *person, int index, SimulationData *simulation);
+void updateStatus(Person *person);
 
 int main(int argc, const char *argv[]) {
     if(argc != TOTAL_ARGUMENT_COUNT) {
