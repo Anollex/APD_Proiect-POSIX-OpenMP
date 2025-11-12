@@ -44,9 +44,9 @@ typedef enum {
 
 
 void personScan(FILE *file, Person *person);
-void updateLocation(Person person);
-void computeNextStatus(Person person);
-void updateStatus(Person person);
+void updateLocation(Person *person, SimulationData *simulation);
+void computeNextStatus(Person *person, int index, SimulationData *simulation);
+void updateStatus(Person *person);
 
 
 int main(int argc, const char *argv[]) {
@@ -102,8 +102,38 @@ void personPrint(char *path, Person *person) {
  * Purpose:   Update the location of a person and take care of out of test area
  * In args:   person
  */
-void updateLocation(Person person) {
-
+void updateLocation(Person *person, SimulationData *simulation) {
+    switch (person->movementDirection) {
+        case NORTH:
+            person->coord.x += person->movementAmplitude;
+            if (person->coord.x >= simulation->maxXCoord) {
+                person->coord.x = simulation->maxXCoord - 1;
+                person->movementDirection ^= 1;
+            }
+            break;
+        case SOUTH:
+            person->coord.x -= person->movementAmplitude;
+            if (person->coord.x < 0) {
+                person->coord.x = 0;
+                person->movementDirection ^= 1;
+            }
+            break;
+        case EAST:
+            person->coord.y += person->movementAmplitude;
+            if (person->coord.y >= simulation->maxYCoord) {
+                person->coord.y = simulation->maxYCoord - 1;
+                person->movementDirection ^= 1;
+            }
+            break;
+        case WEST:
+            person->coord.y -= person->movementAmplitude;
+            if (person->coord.y < 0) {
+                person->coord.y = 0;
+                person->movementDirection ^= 1;
+            }
+            break;
+        default:
+    }
 }
 
 /*-----------------------------------------------------------------
@@ -111,8 +141,33 @@ void updateLocation(Person person) {
  * Purpose:   Compute the next status for a person
  * In args:   person
  */
-void computeNextStatus(Person person) {
-
+void computeNextStatus(Person *person, int index, SimulationData *simulation) {
+    switch (person[index].status) {
+        case INFECTED:
+            for (int i=0; i<simulation->numberOfPersons; i++) {
+                if (i != index) {
+                    if (person[i].status == SUSCEPTIBLE) {
+                        if (person[i].coord.x == person[index].coord.x) {
+                            if (person[i].coord.y == person[index].coord.y) {
+                                person[i].nextStatus = INFECTED;
+                            }
+                        }
+                    }
+                }
+            }
+            if (person[index].statusDuration == 0) {
+                person[index].nextStatus = IMMUNE;
+            }
+            break;
+        case IMMUNE:
+            if (person[index].statusDuration == 0) {
+                person[index].nextStatus = SUSCEPTIBLE;
+            }
+            break;
+        case SUSCEPTIBLE:
+            break;
+        default:
+    }
 }
 
 /*-----------------------------------------------------------------
@@ -120,5 +175,27 @@ void computeNextStatus(Person person) {
  * Purpose:   Update the status to next status of a persons
  * In args:   person
  */
-void updateStatus(Person person) {
+void updateStatus(Person *person) {
+    person->status = person->nextStatus;
+    switch (person->status) {
+        case INFECTED:
+            if (person->statusDuration == 0) {
+                person->statusDuration = INFECTED_DURATION;
+            }
+            else {
+                person->statusDuration--;
+            }
+            break;
+        case SUSCEPTIBLE:
+            break;
+        case IMMUNE:
+            if (person->statusDuration == 0) {
+                person->statusDuration = IMMUNE_DURATION;
+            }
+            else {
+                person->statusDuration--;
+            }
+            break;
+        default:
+    }
 }
