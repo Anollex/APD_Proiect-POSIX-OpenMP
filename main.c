@@ -7,7 +7,7 @@
 
 #define TOTAL_ARGUMENT_COUNT 4
 
-// #define DEBUG 1
+// #define DEBUG
 
 typedef struct {
     int maxXCoord;
@@ -47,11 +47,13 @@ typedef enum {
 
 void Usage();
 void simulationScan(FILE *file, SimulationData *simulation);
-void personScan(FILE *file, Person *person, SimulationData simulation);
-void personPrint(FILE *file, Person *person, SimulationData simulation);
+void personScan(FILE *file, Person *person, SimulationData *simulation);
+void personPrintToFile(FILE *file, Person *person, SimulationData *simulation);
+void personPrintToConsole(Person *person, SimulationData *simulation);
 void updateLocation(Person *person, SimulationData *simulation);
 void computeNextStatus(Person *person, int index, SimulationData *simulation);
 void updateStatus(Person *person);
+void simulateSerial(Person *person, SimulationData *simulation);
 
 int main(int argc, const char *argv[]) {
     if(argc != TOTAL_ARGUMENT_COUNT) {
@@ -72,12 +74,14 @@ int main(int argc, const char *argv[]) {
     // init simulation and read person data
     simulation.simulationTime = atoi(argv[1]);
     simulationScan(inputFile, &simulation);
-    personScan(inputFile, person, simulation);
+    personScan(inputFile, person, &simulation);
 
     if(fclose(inputFile) != 0) {
         perror("File could not be closed\n");
         exit(-1);
     }
+
+    simulateSerial(person, &simulation);
 
     FILE *outputFile = fopen(outputPath, "w");
     if(!outputFile) {
@@ -85,7 +89,7 @@ int main(int argc, const char *argv[]) {
         exit(-1);
     }
 
-    personPrint(outputFile, person, simulation);
+    personPrintToFile(outputFile, person, &simulation);
 
     if(fclose(inputFile) != 0) {
         perror("File could not be closed\n");
@@ -93,6 +97,34 @@ int main(int argc, const char *argv[]) {
     }
 
     return 0;
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Simulate Serial
+ * Purpose:   Simulates the serial version of the algorithm
+ * In args:   person, simulation
+ */
+void simulateSerial(Person *person, SimulationData *simulation) {
+    // each time step
+    for(int time=0;time<simulation->simulationTime;time++) {
+        // update locations
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            updateLocation(&(person[i]), simulation);
+        }
+
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            computeNextStatus(person, i, simulation);
+        }
+
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            updateStatus(&(person[i]));
+        }
+
+        #ifdef DEBUG
+            personPrintToConsole(person, simulation);
+            printf("\n");
+        #endif
+    }
 }
 
 /*-----------------------------------------------------------------
@@ -116,31 +148,52 @@ void simulationScan(FILE *file, SimulationData *simulation) {
 
 /*-----------------------------------------------------------------
  * Function:  Person Scan
- * Purpose:   Input data into person array from file with pathname given by path parameter
+ * Purpose:   Input data into person array from file with pathname given by path parameter. Also updates the status of the person read in order to initialize both status and nextStatus
  * In args:   path, person
  */
-void personScan(FILE *file, Person *person, SimulationData simulation) {
-    for(int i=0;i<simulation.numberOfPersons;i++) {
+void personScan(FILE *file, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->numberOfPersons;i++) {
         fscanf(file, "%d", &(person[i].personID));
         fscanf(file, "%d %d", &(person[i].coord.x), &(person[i].coord.y));
-        fscanf(file, "%d", &(person[i].status));
+        fscanf(file, "%d", &(person[i].nextStatus));
         fscanf(file, "%d", &(person[i].movementDirection));
         fscanf(file, "%d", &(person[i].movementAmplitude));
+        person[i].infectionCounter = 0;
+        person[i].statusDuration = 0;
+
+        updateStatus(&(person[i]));
     }
 }
 
 /*-----------------------------------------------------------------
- * Function:  Person Print
- * Purpose:   Output data for all persons into a file. This function also modifies the given path to construct
- * In args:   path, person
+ * Function:  Person Print To File
+ * Purpose:   Output data for all persons into a file
+ * In args:   file, path, person
  */
-void personPrint(FILE *file, Person *person, SimulationData simulation) {
-    for(int i=0;i<simulation.numberOfPersons;i++) {
+void personPrintToFile(FILE *file, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->numberOfPersons;i++) {
         fprintf(file, "%d ", person[i].personID);
         fprintf(file, "%d %d ", person[i].coord.x, person[i].coord.y);
         fprintf(file, "%d ", person[i].status);
         fprintf(file, "%d ", person[i].movementDirection);
-        fprintf(file, "%d\n", person[i].movementAmplitude);
+        fprintf(file, "%d ", person[i].movementAmplitude);
+        fprintf(file, "%d\n", person[i].infectionCounter);
+    }
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Person Print To Console
+ * Purpose:   Output data for all persons to console
+ * In args:   path, person
+ */
+void personPrintToConsole(Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->numberOfPersons;i++) {
+        printf("%d ", person[i].personID);
+        printf("%d %d ", person[i].coord.x, person[i].coord.y);
+        printf("%d ", person[i].status);
+        printf("%d ", person[i].movementDirection);
+        printf("%d ", person[i].movementAmplitude);
+        printf("%d\n", person[i].infectionCounter);
     }
 }
 
@@ -228,6 +281,7 @@ void updateStatus(Person *person) {
         case INFECTED:
             if (person->statusDuration == 0) {
                 person->statusDuration = INFECTED_DURATION;
+                person->infectionCounter++;
             }
             else {
                 person->statusDuration--;
