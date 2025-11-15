@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-#define INFECTED_DURATION 3
-#define IMMUNE_DURATION 5
+#define INFECTED_DURATION 4
+#define IMMUNE_DURATION 1
 
 #define TOTAL_ARGUMENT_COUNT 4
 
@@ -60,7 +61,6 @@ int main(int argc, const char *argv[]) {
         Usage();
     }
 
-    Person person[10];
     SimulationData simulation;
     char *path = argv[2];
     char *outputPath = "file_serial_out.txt";
@@ -74,6 +74,14 @@ int main(int argc, const char *argv[]) {
     // init simulation and read person data
     simulation.simulationTime = atoi(argv[1]);
     simulationScan(inputFile, &simulation);
+    
+    // allocate memory for Person array
+    Person *person = malloc(simulation.numberOfPersons * sizeof(Person));
+    if(!person) {
+        printf("Eroare la alocare array Person\n");
+        exit(-1);
+    }
+
     personScan(inputFile, person, &simulation);
 
     if(fclose(inputFile) != 0) {
@@ -81,7 +89,18 @@ int main(int argc, const char *argv[]) {
         exit(-1);
     }
 
+    struct timespec start, finish;
+    double time = 0;
+    
+    printf("Measuring Serial...\n");
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     simulateSerial(person, &simulation);
+
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+    time = (finish.tv_sec - start.tv_sec);
+    time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+    printf("Time: %lf\n", time);
 
     FILE *outputFile = fopen(outputPath, "w");
     if(!outputFile) {
@@ -91,7 +110,7 @@ int main(int argc, const char *argv[]) {
 
     personPrintToFile(outputFile, person, &simulation);
 
-    if(fclose(inputFile) != 0) {
+    if(fclose(outputFile) != 0) {
         perror("File could not be closed\n");
         exit(-1);
     }
@@ -107,6 +126,11 @@ int main(int argc, const char *argv[]) {
 void simulateSerial(Person *person, SimulationData *simulation) {
     // each time step
     for(int time=0;time<simulation->simulationTime;time++) {
+        #ifdef DEBUG
+            personPrintToConsole(person, simulation);
+            printf("\n");
+        #endif
+
         // update locations
         for(int i=0;i<simulation->numberOfPersons;i++) {
             updateLocation(&(person[i]), simulation);
@@ -120,10 +144,6 @@ void simulateSerial(Person *person, SimulationData *simulation) {
             updateStatus(&(person[i]));
         }
 
-        #ifdef DEBUG
-            personPrintToConsole(person, simulation);
-            printf("\n");
-        #endif
     }
 }
 
@@ -162,6 +182,9 @@ void personScan(FILE *file, Person *person, SimulationData *simulation) {
         person[i].statusDuration = 0;
 
         updateStatus(&(person[i]));
+        if(person->statusDuration != 0) {
+            person->statusDuration++;
+        }
     }
 }
 
@@ -172,12 +195,13 @@ void personScan(FILE *file, Person *person, SimulationData *simulation) {
  */
 void personPrintToFile(FILE *file, Person *person, SimulationData *simulation) {
     for(int i=0;i<simulation->numberOfPersons;i++) {
-        fprintf(file, "%d ", person[i].personID);
-        fprintf(file, "%d %d ", person[i].coord.x, person[i].coord.y);
-        fprintf(file, "%d ", person[i].status);
-        fprintf(file, "%d ", person[i].movementDirection);
-        fprintf(file, "%d ", person[i].movementAmplitude);
-        fprintf(file, "%d\n", person[i].infectionCounter);
+        fprintf(file, "id:%d ", person[i].personID);
+        fprintf(file, "x:%d y:%d ", person[i].coord.x, person[i].coord.y);
+        fprintf(file, "st:%d ", person[i].status);
+        fprintf(file, "mD:%d ", person[i].movementDirection);
+        fprintf(file, "mA:%d ", person[i].movementAmplitude);
+        fprintf(file, "iC:%d ", person[i].infectionCounter);
+        fprintf(file, "sD:%d\n", person[i].statusDuration);
     }
 }
 
@@ -188,12 +212,13 @@ void personPrintToFile(FILE *file, Person *person, SimulationData *simulation) {
  */
 void personPrintToConsole(Person *person, SimulationData *simulation) {
     for(int i=0;i<simulation->numberOfPersons;i++) {
-        printf("%d ", person[i].personID);
-        printf("%d %d ", person[i].coord.x, person[i].coord.y);
-        printf("%d ", person[i].status);
-        printf("%d ", person[i].movementDirection);
-        printf("%d ", person[i].movementAmplitude);
-        printf("%d\n", person[i].infectionCounter);
+        printf("id:%d ", person[i].personID);
+        printf("x:%d y:%d ", person[i].coord.x, person[i].coord.y);
+        printf("st:%d ", person[i].status);
+        printf("mD:%d ", person[i].movementDirection);
+        printf("mA:%d ", person[i].movementAmplitude);
+        printf("iC:%d ", person[i].infectionCounter);
+        printf("sD:%d\n", person[i].statusDuration);
     }
 }
 
@@ -280,7 +305,7 @@ void updateStatus(Person *person) {
     switch (person->status) {
         case INFECTED:
             if (person->statusDuration == 0) {
-                person->statusDuration = INFECTED_DURATION;
+                person->statusDuration = INFECTED_DURATION - 1;
                 person->infectionCounter++;
             }
             else {
@@ -291,7 +316,7 @@ void updateStatus(Person *person) {
             break;
         case IMMUNE:
             if (person->statusDuration == 0) {
-                person->statusDuration = IMMUNE_DURATION;
+                person->statusDuration = IMMUNE_DURATION - 1;
             }
             else {
                 person->statusDuration--;
