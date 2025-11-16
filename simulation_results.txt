@@ -1,0 +1,600 @@
+simulationTime: 50	numberOfPersons: 10000	numberOfThreads: 4
+Serial Time: 0.042313
+Parallel Time: 0.050772
+Speedup: 0.833393
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 10000	numberOfThreads: 8
+Serial Time: 0.044042
+Parallel Time: 0.058066
+Speedup: 0.758483
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 10000	numberOfThreads: 12
+Serial Time: 0.043403
+Parallel Time: 0.058657
+Speedup: 0.739954
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 10000	numberOfThreads: 16
+Serial Time: 0.044083
+Parallel Time: 0.069995
+Speedup: 0.629800
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 20000	numberOfThreads: 4
+Serial Time: 0.059947
+Parallel Time: 0.077267
+Speedup: 0.775839
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 20000	numberOfThreads: 8
+Serial Time: 0.063901
+Parallel Time: 0.081882
+Speedup: 0.780405
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 20000	numberOfThreads: 12
+Serial Time: 0.058751
+Parallel Time: 0.090334
+Speedup: 0.650378
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 20000	numberOfThreads: 16
+Serial Time: 0.061713
+Parallel Time: 0.101177
+Speedup: 0.609951
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 50000	numberOfThreads: 4
+Serial Time: 0.171547
+Parallel Time: 0.171692
+Speedup: 0.999154
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 50000	numberOfThreads: 8
+Serial Time: 0.176754
+Parallel Time: 0.174666
+Speedup: 1.011958
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 50000	numberOfThreads: 12
+Serial Time: 0.174844
+Parallel Time: 0.180631
+Speedup: 0.967959
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 50000	numberOfThreads: 16
+Serial Time: 0.169102
+Parallel Time: 0.184925
+Speedup: 0.914436
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 100000	numberOfThreads: 4
+Serial Time: 0.366700
+Parallel Time: 0.331362
+Speedup: 1.106646
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 100000	numberOfThreads: 8
+Serial Time: 0.392835
+Parallel Time: 0.355983
+Speedup: 1.103522
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 100000	numberOfThreads: 12
+Serial Time: 0.392085
+Parallel Time: 0.361798
+Speedup: 1.083714
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 100000	numberOfThreads: 16
+Serial Time: 0.420418
+Parallel Time: 0.363991
+Speedup: 1.155024
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 500000	numberOfThreads: 4
+Serial Time: 6.636806
+Parallel Time: 5.852403
+Speedup: 1.134031
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 500000	numberOfThreads: 8
+Serial Time: 8.135559
+Parallel Time: 5.104167
+Speedup: 1.593905
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 500000	numberOfThreads: 12
+Serial Time: 7.007073
+Parallel Time: 4.255528
+Speedup: 1.646581
+Rezultatele sunt egale
+ 
+simulationTime: 50	numberOfPersons: 500000	numberOfThreads: 16
+Serial Time: 7.090728
+Parallel Time: 4.763666
+Speedup: 1.488502
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 10000	numberOfThreads: 4
+Serial Time: 0.110111
+Parallel Time: 0.139559
+Speedup: 0.788997
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 10000	numberOfThreads: 8
+Serial Time: 0.117385
+Parallel Time: 0.130694
+Speedup: 0.898161
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 10000	numberOfThreads: 12
+Serial Time: 0.092539
+Parallel Time: 0.142567
+Speedup: 0.649093
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 10000	numberOfThreads: 16
+Serial Time: 0.110114
+Parallel Time: 0.172965
+Speedup: 0.636625
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 20000	numberOfThreads: 4
+Serial Time: 0.126289
+Parallel Time: 0.155221
+Speedup: 0.813610
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 20000	numberOfThreads: 8
+Serial Time: 0.131517
+Parallel Time: 0.194021
+Speedup: 0.677851
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 20000	numberOfThreads: 12
+Serial Time: 0.128544
+Parallel Time: 0.201294
+Speedup: 0.638588
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 20000	numberOfThreads: 16
+Serial Time: 0.126615
+Parallel Time: 0.206566
+Speedup: 0.612952
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 50000	numberOfThreads: 4
+Serial Time: 0.397282
+Parallel Time: 0.382007
+Speedup: 1.039987
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 50000	numberOfThreads: 8
+Serial Time: 0.409302
+Parallel Time: 0.379368
+Speedup: 1.078905
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 50000	numberOfThreads: 12
+Serial Time: 0.410045
+Parallel Time: 0.399137
+Speedup: 1.027329
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 50000	numberOfThreads: 16
+Serial Time: 0.402423
+Parallel Time: 0.427521
+Speedup: 0.941294
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 100000	numberOfThreads: 4
+Serial Time: 1.007541
+Parallel Time: 0.748130
+Speedup: 1.346746
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 100000	numberOfThreads: 8
+Serial Time: 1.034278
+Parallel Time: 0.770082
+Speedup: 1.343075
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 100000	numberOfThreads: 12
+Serial Time: 1.191499
+Parallel Time: 0.718630
+Speedup: 1.658015
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 100000	numberOfThreads: 16
+Serial Time: 1.069196
+Parallel Time: 0.761088
+Speedup: 1.404825
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 500000	numberOfThreads: 4
+Serial Time: 13.650360
+Parallel Time: 8.269778
+Speedup: 1.650632
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 500000	numberOfThreads: 8
+Serial Time: 12.510947
+Parallel Time: 10.192079
+Speedup: 1.227517
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 500000	numberOfThreads: 12
+Serial Time: 14.024909
+Parallel Time: 7.271269
+Speedup: 1.928812
+Rezultatele sunt egale
+ 
+simulationTime: 100	numberOfPersons: 500000	numberOfThreads: 16
+Serial Time: 12.997487
+Parallel Time: 7.541647
+Speedup: 1.723428
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 10000	numberOfThreads: 4
+Serial Time: 0.183005
+Parallel Time: 0.205030
+Speedup: 0.892577
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 10000	numberOfThreads: 8
+Serial Time: 0.171146
+Parallel Time: 0.186823
+Speedup: 0.916087
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 10000	numberOfThreads: 12
+Serial Time: 0.158211
+Parallel Time: 0.214937
+Speedup: 0.736079
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 10000	numberOfThreads: 16
+Serial Time: 0.137792
+Parallel Time: 0.246542
+Speedup: 0.558898
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 20000	numberOfThreads: 4
+Serial Time: 0.183377
+Parallel Time: 0.232477
+Speedup: 0.788796
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 20000	numberOfThreads: 8
+Serial Time: 0.182751
+Parallel Time: 0.266325
+Speedup: 0.686194
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 20000	numberOfThreads: 12
+Serial Time: 0.190464
+Parallel Time: 0.305713
+Speedup: 0.623017
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 20000	numberOfThreads: 16
+Serial Time: 0.196734
+Parallel Time: 0.318295
+Speedup: 0.618088
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 50000	numberOfThreads: 4
+Serial Time: 0.651050
+Parallel Time: 0.667483
+Speedup: 0.975380
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 50000	numberOfThreads: 8
+Serial Time: 0.544855
+Parallel Time: 0.621510
+Speedup: 0.876664
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 50000	numberOfThreads: 12
+Serial Time: 0.554516
+Parallel Time: 0.647293
+Speedup: 0.856670
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 50000	numberOfThreads: 16
+Serial Time: 0.549741
+Parallel Time: 0.682867
+Speedup: 0.805048
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 100000	numberOfThreads: 4
+Serial Time: 1.348213
+Parallel Time: 0.955847
+Speedup: 1.410490
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 100000	numberOfThreads: 8
+Serial Time: 1.338391
+Parallel Time: 1.008177
+Speedup: 1.327536
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 100000	numberOfThreads: 12
+Serial Time: 1.334180
+Parallel Time: 1.050202
+Speedup: 1.270404
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 100000	numberOfThreads: 16
+Serial Time: 1.376529
+Parallel Time: 1.020120
+Speedup: 1.349379
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 500000	numberOfThreads: 4
+Serial Time: 17.893056
+Parallel Time: 11.928791
+Speedup: 1.499989
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 500000	numberOfThreads: 8
+Serial Time: 19.023312
+Parallel Time: 12.127975
+Speedup: 1.568548
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 500000	numberOfThreads: 12
+Serial Time: 18.744332
+Parallel Time: 14.162110
+Speedup: 1.323555
+Rezultatele sunt egale
+ 
+simulationTime: 150	numberOfPersons: 500000	numberOfThreads: 16
+Serial Time: 19.532305
+Parallel Time: 14.291740
+Speedup: 1.366685
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 10000	numberOfThreads: 4
+Serial Time: 0.235468
+Parallel Time: 0.262657
+Speedup: 0.896485
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 10000	numberOfThreads: 8
+Serial Time: 0.181296
+Parallel Time: 0.237974
+Speedup: 0.761832
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 10000	numberOfThreads: 12
+Serial Time: 0.213071
+Parallel Time: 0.286920
+Speedup: 0.742617
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 10000	numberOfThreads: 16
+Serial Time: 0.199485
+Parallel Time: 0.340903
+Speedup: 0.585167
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 20000	numberOfThreads: 4
+Serial Time: 0.250400
+Parallel Time: 0.305581
+Speedup: 0.819423
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 20000	numberOfThreads: 8
+Serial Time: 0.266649
+Parallel Time: 0.351927
+Speedup: 0.757682
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 20000	numberOfThreads: 12
+Serial Time: 0.260129
+Parallel Time: 0.398693
+Speedup: 0.652453
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 20000	numberOfThreads: 16
+Serial Time: 0.259563
+Parallel Time: 0.443802
+Speedup: 0.584863
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 50000	numberOfThreads: 4
+Serial Time: 0.722255
+Parallel Time: 0.836637
+Speedup: 0.863284
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 50000	numberOfThreads: 8
+Serial Time: 0.851701
+Parallel Time: 0.816245
+Speedup: 1.043439
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 50000	numberOfThreads: 12
+Serial Time: 0.717641
+Parallel Time: 0.875510
+Speedup: 0.819684
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 50000	numberOfThreads: 16
+Serial Time: 0.940186
+Parallel Time: 0.858507
+Speedup: 1.095140
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 100000	numberOfThreads: 4
+Serial Time: 1.810041
+Parallel Time: 1.418843
+Speedup: 1.275717
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 100000	numberOfThreads: 8
+Serial Time: 1.864867
+Parallel Time: 1.509139
+Speedup: 1.235716
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 100000	numberOfThreads: 12
+Serial Time: 1.716936
+Parallel Time: 1.304773
+Speedup: 1.315888
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 100000	numberOfThreads: 16
+Serial Time: 1.822115
+Parallel Time: 1.358703
+Speedup: 1.341069
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 500000	numberOfThreads: 4
+Serial Time: 25.890402
+Parallel Time: 17.443616
+Speedup: 1.484234
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 500000	numberOfThreads: 8
+Serial Time: 25.880098
+Parallel Time: 14.829662
+Speedup: 1.745158
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 500000	numberOfThreads: 12
+Serial Time: 25.657753
+Parallel Time: 14.225449
+Speedup: 1.803652
+Rezultatele sunt egale
+ 
+simulationTime: 200	numberOfPersons: 500000	numberOfThreads: 16
+Serial Time: 24.998080
+Parallel Time: 13.976571
+Speedup: 1.788570
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 10000	numberOfThreads: 4
+Serial Time: 0.464823
+Parallel Time: 0.496307
+Speedup: 0.936564
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 10000	numberOfThreads: 8
+Serial Time: 0.446447
+Parallel Time: 0.539930
+Speedup: 0.826861
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 10000	numberOfThreads: 12
+Serial Time: 0.447680
+Parallel Time: 0.589097
+Speedup: 0.759943
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 10000	numberOfThreads: 16
+Serial Time: 0.433907
+Parallel Time: 0.663891
+Speedup: 0.653583
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 20000	numberOfThreads: 4
+Serial Time: 0.576824
+Parallel Time: 0.725181
+Speedup: 0.795421
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 20000	numberOfThreads: 8
+Serial Time: 0.587646
+Parallel Time: 0.773221
+Speedup: 0.759997
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 20000	numberOfThreads: 12
+Serial Time: 0.604905
+Parallel Time: 0.826528
+Speedup: 0.731863
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 20000	numberOfThreads: 16
+Serial Time: 0.583515
+Parallel Time: 0.925672
+Speedup: 0.630369
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 50000	numberOfThreads: 4
+Serial Time: 1.672991
+Parallel Time: 1.668225
+Speedup: 1.002857
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 50000	numberOfThreads: 8
+Serial Time: 1.651414
+Parallel Time: 1.728427
+Speedup: 0.955443
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 50000	numberOfThreads: 12
+Serial Time: 1.643560
+Parallel Time: 1.682124
+Speedup: 0.977074
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 50000	numberOfThreads: 16
+Serial Time: 1.693640
+Parallel Time: 1.751856
+Speedup: 0.966769
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 100000	numberOfThreads: 4
+Serial Time: 3.686491
+Parallel Time: 2.940790
+Speedup: 1.253572
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 100000	numberOfThreads: 8
+Serial Time: 3.482337
+Parallel Time: 2.930810
+Speedup: 1.188183
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 100000	numberOfThreads: 12
+Serial Time: 3.432540
+Parallel Time: 2.956901
+Speedup: 1.160857
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 100000	numberOfThreads: 16
+Serial Time: 3.450065
+Parallel Time: 3.034255
+Speedup: 1.137039
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 500000	numberOfThreads: 4
+Serial Time: 62.129088
+Parallel Time: 38.760530
+Speedup: 1.602896
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 500000	numberOfThreads: 8
+Serial Time: 58.474401
+Parallel Time: 36.045524
+Speedup: 1.622238
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 500000	numberOfThreads: 12
+Serial Time: 57.735161
+Parallel Time: 36.849298
+Speedup: 1.566791
+Rezultatele sunt egale
+ 
+simulationTime: 500	numberOfPersons: 500000	numberOfThreads: 16
+Serial Time: 57.441958
+Parallel Time: 35.059953
+Speedup: 1.638392
+Rezultatele sunt egale
+ 

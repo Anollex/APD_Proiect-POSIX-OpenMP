@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
 
 #define INFECTED_DURATION 4
 #define IMMUNE_DURATION 2
@@ -41,6 +42,14 @@ typedef struct personNode{
     int personIndex;
     struct personNode *next;
 }PersonNode;
+
+typedef struct {
+    int rank;
+    int threadCount;
+    PersonNode ***grid;
+    Person *person;
+    SimulationData *simulation;
+}Parameters;
 
 typedef enum {
     INFECTED,
@@ -83,15 +92,25 @@ void freeGrid(PersonNode ***grid, SimulationData *simulation);
 void freeList(PersonNode *node);
 
 char *buildOutputPath(char *inputPath, char *suffix);
+void checkSolution(char *serialFilePath, char *parallelFilePath);
+
+void computeNextStatusParallel(PersonNode ***grid, Person *person, SimulationData *simulation, Parameters *parameters, pthread_t *threadHandles, int threadCount);
+void *computeNextStatusParallel_PosixFunc(void *parameters);
+void *updateLocationsParallel_PosixFunc(void *parameters);
+void updateStatusParallel(Person *person, SimulationData *simulation, Parameters *parameters, pthread_t *threadHandles, int threadCount);
+
+void simulateParallel(PersonNode ***grid, Person *person, SimulationData *simulation, int threadCount);
 
 int main(int argc, const char *argv[]) {
     if(argc != TOTAL_ARGUMENT_COUNT) {
         Usage();
     }
     
+    int threadCount = atoi(argv[3]);
     char *path = argv[2];
     // char *serialOutputPath = "file_serial_out.txt";
     char *serialOutputPath = buildOutputPath(path, SERIAL_PATH_SUFFIX);
+    char *parallelOutputPath = buildOutputPath(path, PARALLEL_PATH_SUFFIX);
 
     FILE *inputFile = fopen(path, "r");
     if(!inputFile) {
@@ -103,6 +122,8 @@ int main(int argc, const char *argv[]) {
     SimulationData simulation;
     simulation.simulationTime = atoi(argv[1]);
     simulationScan(inputFile, &simulation);
+
+    printf("simulationTime: %d\tnumberOfPersons: %d\tnumberOfThreads: %d\n", simulation.simulationTime, simulation.numberOfPersons, threadCount);
 
     PersonNode ***grid = malloc(simulation.maxXCoord * sizeof(PersonNode **));
     if(!grid) {
@@ -119,12 +140,14 @@ int main(int argc, const char *argv[]) {
     
     // allocate memory for Person array
     Person *person = malloc(simulation.numberOfPersons * sizeof(Person));
-    if(!person) {
+    Person *personCopy = malloc(simulation.numberOfPersons * sizeof(Person));
+    if(!person || !personCopy) {
         printf("Eroare la alocare array Person\n");
         exit(-1);
     }
 
     personScan(inputFile, person, &simulation);
+    memcpy(personCopy, person, simulation.numberOfPersons * sizeof(Person));
 
     if(fclose(inputFile) != 0) {
         perror("File could not be closed\n");
@@ -134,18 +157,19 @@ int main(int argc, const char *argv[]) {
     initGrid(grid, person, &simulation);
     // printGrid(grid, &simulation);
 
+    // Simuare seriala
     struct timespec start, finish;
-    double time = 0;
-    
-    printf("Measuring Serial...\n");
+    double serialTime = 0, parallelTime = 0;
+
+    // printf("Measuring Serial...\n");
     clock_gettime(CLOCK_MONOTONIC, &start);
 
     simulateSerial(grid, person, &simulation);
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
-    time = (finish.tv_sec - start.tv_sec);
-    time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
-    printf("Time: %lf\n", time);
+    serialTime = (finish.tv_sec - start.tv_sec);
+    serialTime += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+    printf("Serial Time: %lf\n", serialTime);
 
     FILE *outputFile = fopen(serialOutputPath, "w");
     if(!outputFile) {
@@ -153,12 +177,47 @@ int main(int argc, const char *argv[]) {
         exit(-1);
     }
 
-    personPrintToFile(outputFile, person, &simulation, STANDARD_PRINT_FORMAT);
+    personPrintToFile(outputFile, person, &simulation, ONLY_NUMBERS_PRINT_FORMAT);
 
     if(fclose(outputFile) != 0) {
         perror("File could not be closed\n");
         exit(-1);
     }
+
+    // Simulare paralela
+    // Trebuie restaurat person
+    memcpy(person, personCopy, simulation.numberOfPersons * sizeof(Person));
+
+    initGrid(grid, person, &simulation);
+
+    // printf("Measuring Parallel...\n");
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
+    simulateParallel(grid, person, &simulation, threadCount);
+
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+    parallelTime = (finish.tv_sec - start.tv_sec);
+    parallelTime += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+    printf("Parallel Time: %lf\n", parallelTime);
+
+    outputFile = fopen(parallelOutputPath, "w");
+    if(!outputFile) {
+        printf("File not found!\n");
+        exit(-1);
+    }
+
+    personPrintToFile(outputFile, person, &simulation, ONLY_NUMBERS_PRINT_FORMAT);
+
+    if(fclose(outputFile) != 0) {
+        perror("File could not be closed\n");
+        exit(-1);
+    }
+
+    double speedup = serialTime / parallelTime;
+
+    printf("Speedup: %lf\n", speedup);
+
+    checkSolution(serialOutputPath, parallelOutputPath);
 
     free(person);
     freeGrid(grid, &simulation);
@@ -200,6 +259,53 @@ void simulateSerial(PersonNode ***grid, Person *person, SimulationData *simulati
         for(int i=0;i<simulation->numberOfPersons;i++) {
             updateLocation(&(person[i]), simulation);
         }
+    }
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Simulate Parallel
+ * Purpose:   Simulates the parallel version of the algorithm
+ * In args:   person, simulation
+ */
+void simulateParallel(PersonNode ***grid, Person *person, SimulationData *simulation, int threadCount) {
+    // each time step
+    for(int time=0;time<simulation->simulationTime;time++) {
+        #ifdef DEBUG
+            personPrintToConsole(person, simulation);
+            printf("\n");
+        #endif
+
+        pthread_t *threadHandles = malloc(threadCount * sizeof(pthread_t));
+        Parameters *parameters = malloc(threadCount * sizeof(Parameters));
+        if (!parameters || !threadHandles) {
+            printf("Eroare la alocare memorie pentru thread-uri\n");
+            exit(-1);
+        }
+
+        updateGrid(grid, person, simulation);
+    #ifdef DEBUG_GRID
+        printGrid(grid, person, simulation);
+        printf("\n");
+    #endif
+
+        // version 1 compute status
+        // for(int i=0;i<simulation->numberOfPersons;i++) {
+        //     computeNextStatus(person, i, simulation);
+        // }
+
+        computeNextStatusParallel(grid, person, simulation, parameters, threadHandles, threadCount);
+
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            updateStatus(&(person[i]));
+        }
+
+        // update locations
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            updateLocation(&(person[i]), simulation);
+        }
+
+        free(threadHandles);
+        free(parameters);
     }
 }
 
@@ -535,6 +641,150 @@ char *buildOutputPath(char *inputPath, char *suffix) {
     strcat(ret, suffix);
 
     return ret;
+}
+
+#define MAX_LINE_BUFFER 100
+
+void checkSolution(char *serialFilePath, char *parallelFilePath) {
+    FILE *serialFile = fopen(serialFilePath, "r");
+    if(!serialFile) {
+        printf("File not found!\n");
+        exit(-1);
+    }
+
+    FILE *parallelFile = fopen(parallelFilePath, "r");
+    if(!parallelFile) {
+        printf("File not found!\n");
+        exit(-1);
+    }
+
+    char serialLine[MAX_LINE_BUFFER];
+    char parallelLine[MAX_LINE_BUFFER];
+    int line = 0;
+    int ok = 1;
+
+    while(1) {
+        line++;
+
+        char *serialCheck = fgets(serialLine, MAX_LINE_BUFFER, serialFile);
+        char *parallelCheck = fgets(parallelLine, MAX_LINE_BUFFER, parallelFile);
+
+        if(serialCheck == NULL && parallelCheck == NULL) {
+            break;
+        }
+
+        if(serialCheck == NULL && parallelCheck == NULL) {
+            printf("Fisierele nu au aceeasi lungime\n");
+            ok = 0;
+            break;
+        }
+
+        if(strcmp(serialLine, parallelLine) != 0) {
+            printf("Liniile %d au lungimi diferite\n", line);
+            printf("Serial  : %s", serialLine);
+            printf("Parallel: %s", parallelLine);
+            ok = 0;
+            break;
+        }
+    }
+
+    if(ok == 1) {
+        printf("Rezultatele sunt egale\n");
+    } else {
+        printf("Rezultatele NU sunt egale\n");        
+    }
+
+    if(fclose(serialFile) != 0) {
+        perror("File could not be closed\n");
+        exit(-1);
+    }
+
+    if(fclose(parallelFile) != 0) {
+        perror("File could not be closed\n");
+        exit(-1);
+    }
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Compute NextStatus
+ * Purpose:   Compute the next status for a person
+ * In args:   grid, person, simulation
+ */
+void *computeNextStatusParallel_PosixFunc(void *parameters) {
+    Parameters *localParam = (Parameters *)parameters;
+    
+    PersonNode ***grid = localParam->grid;
+    Person *person = localParam->person;
+    SimulationData *simulation = localParam->simulation;
+    int myRank = localParam->rank;
+    int threadCount = localParam->threadCount;
+
+    int rowsPerThread = simulation->maxXCoord / threadCount;
+    int firstRow = myRank * rowsPerThread;
+    int lastRow = (myRank + 1) * rowsPerThread - 1;
+    if(myRank == threadCount - 1) { // suntem la ultima parte => luam si restul in calcul
+        lastRow = simulation->maxXCoord - 1;
+    }
+
+    for(int i=firstRow;i<=lastRow;i++) {
+        for(int j=0;j<simulation->maxYCoord;j++) {
+            int infectedFound = 0;
+
+            // verifica fiecare nod din lista
+            PersonNode *traverser = grid[i][j];
+            while(traverser != NULL) {
+                int index = traverser->personIndex;
+                switch(person[index].status) {
+                    case INFECTED: // daca este infectat seteaza infectedFound si daca durata a ajuns la 0 seteaza urmatoarea stare pe immune
+                        infectedFound = 1;
+                        if(person[index].statusDuration == 0) {
+                            person[index].nextStatus = IMMUNE;
+                        }
+                        break;
+                    case IMMUNE: // daca durata a ajuns la 0 seteaza pe susceptible la urmatoarea stare
+                        if(person[index].statusDuration == 0) {
+                            person[index].nextStatus = SUSCEPTIBLE;
+                        }
+                        break;
+                    case SUSCEPTIBLE: // nu trebuie facut nimic aici
+                        break;
+                }
+
+                // update reference
+                traverser = traverser->next;
+            }
+            
+            if(infectedFound) { // daca o persoana este infectata vom infecta si celelalte persoane susceptibile din aceeasi celula
+                traverser = grid[i][j];
+                while(traverser != NULL) {
+                    if(person[traverser->personIndex].status == SUSCEPTIBLE)
+                        person[traverser->personIndex].nextStatus = INFECTED;
+
+                    // update reference
+                    traverser = traverser->next;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+void computeNextStatusParallel(PersonNode ***grid, Person *person, SimulationData *simulation, Parameters *parameters, pthread_t *threadHandles, int threadCount) {
+    for(int thread=0;thread<threadCount;thread++) {
+        parameters[thread].rank = thread;
+        parameters[thread].threadCount = threadCount;
+
+        parameters[thread].grid = grid;
+        parameters[thread].person = person;
+        parameters[thread].simulation = simulation;
+
+        pthread_create(&threadHandles[thread], NULL, computeNextStatusParallel_PosixFunc, &parameters[thread]);
+    }
+
+    for (int thread=0;thread<threadCount;thread++) {
+        pthread_join(threadHandles[thread], NULL);
+    }
 }
 
 // for version 1
