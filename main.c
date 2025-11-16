@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define INFECTED_DURATION 4
-#define IMMUNE_DURATION 1
+#define IMMUNE_DURATION 2
 
 #define TOTAL_ARGUMENT_COUNT 4
 
@@ -55,10 +55,15 @@ typedef enum {
     WEST    //11 ^ 0x0001 = 10
 }Directions;
 
+typedef enum {
+    STANDARD_PRINT_FORMAT,
+    ONLY_NUMBERS_PRINT_FORMAT
+}PrintFormats;
+
 void Usage();
 void simulationScan(FILE *file, SimulationData *simulation);
 void personScan(FILE *file, Person *person, SimulationData *simulation);
-void personPrintToFile(FILE *file, Person *person, SimulationData *simulation);
+void personPrintToFile(FILE *file, Person *person, SimulationData *simulation, int format);
 void personPrintToConsole(Person *person, SimulationData *simulation);
 void updateLocation(Person *person, SimulationData *simulation);
 // void computeNextStatus(Person *person, int index, SimulationData *simulation); // first version
@@ -148,7 +153,7 @@ int main(int argc, const char *argv[]) {
         exit(-1);
     }
 
-    personPrintToFile(outputFile, person, &simulation);
+    personPrintToFile(outputFile, person, &simulation, STANDARD_PRINT_FORMAT);
 
     if(fclose(outputFile) != 0) {
         perror("File could not be closed\n");
@@ -322,8 +327,8 @@ void personScan(FILE *file, Person *person, SimulationData *simulation) {
         person[i].statusDuration = 0;
 
         updateStatus(&(person[i]));
-        if(person->statusDuration != 0) {
-            person->statusDuration++;
+        if(person[i].status == INFECTED) {
+            person[i].statusDuration++;
         }
     }
 }
@@ -333,15 +338,27 @@ void personScan(FILE *file, Person *person, SimulationData *simulation) {
  * Purpose:   Output data for all persons into a file
  * In args:   file, path, person
  */
-void personPrintToFile(FILE *file, Person *person, SimulationData *simulation) {
-    for(int i=0;i<simulation->numberOfPersons;i++) {
-        fprintf(file, "id:%d ", person[i].personID);
-        fprintf(file, "x:%d y:%d ", person[i].coord.x, person[i].coord.y);
-        fprintf(file, "st:%d ", person[i].status);
-        fprintf(file, "mD:%d ", person[i].movementDirection);
-        fprintf(file, "mA:%d ", person[i].movementAmplitude);
-        fprintf(file, "iC:%d ", person[i].infectionCounter);
-        fprintf(file, "sD:%d\n", person[i].statusDuration);
+void personPrintToFile(FILE *file, Person *person, SimulationData *simulation, int format) {
+    if(format == STANDARD_PRINT_FORMAT) {
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            fprintf(file, "id:%d ", person[i].personID);
+            fprintf(file, "x:%d y:%d ", person[i].coord.x, person[i].coord.y);
+            fprintf(file, "st:%d ", person[i].status);
+            fprintf(file, "mD:%d ", person[i].movementDirection);
+            fprintf(file, "mA:%d ", person[i].movementAmplitude);
+            fprintf(file, "iC:%d ", person[i].infectionCounter);
+            fprintf(file, "sD:%d\n", person[i].statusDuration);
+        }
+    } else if(format == ONLY_NUMBERS_PRINT_FORMAT) {
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            fprintf(file, "%d ", person[i].personID);
+            fprintf(file, "%d %d ", person[i].coord.x, person[i].coord.y);
+            fprintf(file, "%d ", person[i].status);
+            fprintf(file, "%d ", person[i].movementDirection);
+            fprintf(file, "%d ", person[i].movementAmplitude);
+            fprintf(file, "%d ", person[i].infectionCounter);
+            fprintf(file, "%d\n", person[i].statusDuration);
+        }
     }
 }
 
@@ -470,7 +487,7 @@ void updateStatus(Person *person) {
             break;
         case IMMUNE:
             if (person->statusDuration == 0) {
-                person->statusDuration = IMMUNE_DURATION - 1;
+                person->statusDuration = IMMUNE_DURATION;
             }
             else {
                 person->statusDuration--;
