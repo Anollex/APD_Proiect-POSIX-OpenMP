@@ -9,6 +9,7 @@
 #define TOTAL_ARGUMENT_COUNT 4
 
 // #define DEBUG
+// #define DEBUG_GRID
 
 typedef struct {
     int maxXCoord;
@@ -33,6 +34,11 @@ typedef struct {
     int infectionCounter;
 }Person;
 
+typedef struct personNode{
+    int personIndex;
+    struct personNode *next;
+}PersonNode;
+
 typedef enum {
     INFECTED,
     SUSCEPTIBLE,
@@ -52,15 +58,28 @@ void personScan(FILE *file, Person *person, SimulationData *simulation);
 void personPrintToFile(FILE *file, Person *person, SimulationData *simulation);
 void personPrintToConsole(Person *person, SimulationData *simulation);
 void updateLocation(Person *person, SimulationData *simulation);
-void computeNextStatus(Person *person, int index, SimulationData *simulation);
+// void computeNextStatus(Person *person, int index, SimulationData *simulation); // first version
+void computeNextStatus(PersonNode ***grid, Person *person, SimulationData *simulation);
 void updateStatus(Person *person);
-void simulateSerial(Person *person, SimulationData *simulation);
+void simulateSerial(PersonNode ***grid, Person *person, SimulationData *simulation);
+
+void initGrid(PersonNode ***grid, Person *person, SimulationData *simulation);
+void printPersonNode(PersonNode *node);
+void appendPersonNode(int personIndex, PersonNode **gridCell);
+void updateGrid(PersonNode ***grid, Person *person, SimulationData *simulation);
+
+void printGrid(PersonNode ***grid, Person *person, SimulationData *simulation);
+void printList(PersonNode* node, Person *person);
+
+void freeGrid(PersonNode ***grid, SimulationData *simulation);
+void freeList(PersonNode *node);
+
 
 int main(int argc, const char *argv[]) {
     if(argc != TOTAL_ARGUMENT_COUNT) {
         Usage();
     }
-
+    
     SimulationData simulation;
     char *path = argv[2];
     char *outputPath = "file_serial_out.txt";
@@ -74,6 +93,19 @@ int main(int argc, const char *argv[]) {
     // init simulation and read person data
     simulation.simulationTime = atoi(argv[1]);
     simulationScan(inputFile, &simulation);
+
+    PersonNode ***grid = malloc(simulation.maxXCoord * sizeof(PersonNode **));
+    if(!grid) {
+        printf("Eroare la alocare randuri grid\n");
+        exit(-1);
+    }
+    for(int i=0;i<simulation.maxXCoord;i++) {
+        grid[i] = malloc(simulation.maxYCoord * sizeof(PersonNode *));
+        if(!grid[i]) {
+            printf("Eroare la alocare coloana %d din grid\n", i);
+            exit(-1);
+        }
+    }
     
     // allocate memory for Person array
     Person *person = malloc(simulation.numberOfPersons * sizeof(Person));
@@ -83,6 +115,9 @@ int main(int argc, const char *argv[]) {
     }
 
     personScan(inputFile, person, &simulation);
+
+    initGrid(grid, person, &simulation);
+    // printGrid(grid, &simulation);
 
     if(fclose(inputFile) != 0) {
         perror("File could not be closed\n");
@@ -95,7 +130,7 @@ int main(int argc, const char *argv[]) {
     printf("Measuring Serial...\n");
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    simulateSerial(person, &simulation);
+    simulateSerial(grid, person, &simulation);
 
     clock_gettime(CLOCK_MONOTONIC, &finish);
     time = (finish.tv_sec - start.tv_sec);
@@ -115,6 +150,9 @@ int main(int argc, const char *argv[]) {
         exit(-1);
     }
 
+    free(person);
+    freeGrid(grid, &simulation);
+
     return 0;
 }
 
@@ -123,7 +161,7 @@ int main(int argc, const char *argv[]) {
  * Purpose:   Simulates the serial version of the algorithm
  * In args:   person, simulation
  */
-void simulateSerial(Person *person, SimulationData *simulation) {
+void simulateSerial(PersonNode ***grid, Person *person, SimulationData *simulation) {
     // each time step
     for(int time=0;time<simulation->simulationTime;time++) {
         #ifdef DEBUG
@@ -131,19 +169,116 @@ void simulateSerial(Person *person, SimulationData *simulation) {
             printf("\n");
         #endif
 
-        // update locations
-        for(int i=0;i<simulation->numberOfPersons;i++) {
-            updateLocation(&(person[i]), simulation);
-        }
+        updateGrid(grid, person, simulation);
+    #ifdef DEBUG_GRID
+        printGrid(grid, person, simulation);
+        printf("\n");
+    #endif
 
-        for(int i=0;i<simulation->numberOfPersons;i++) {
-            computeNextStatus(person, i, simulation);
-        }
+        // version 1 compute status
+        // for(int i=0;i<simulation->numberOfPersons;i++) {
+        //     computeNextStatus(person, i, simulation);
+        // }
+
+        computeNextStatus(grid, person, simulation);
 
         for(int i=0;i<simulation->numberOfPersons;i++) {
             updateStatus(&(person[i]));
         }
 
+        // update locations
+        for(int i=0;i<simulation->numberOfPersons;i++) {
+            updateLocation(&(person[i]), simulation);
+        }
+    }
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Init Grid
+ * Purpose:   Go through all the cells of the grid and initialize them with NULL, then put all persons in the cells they belong to at the start based on current x and y coordinates
+ * In args:   grid, person, simulation
+ */
+void initGrid(PersonNode ***grid, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->maxXCoord;i++) {
+        for(int j=0;j<simulation->maxYCoord;j++) {
+            grid[i][j] = NULL;
+        }
+    }
+}
+
+void appendPersonNode(int personIndex, PersonNode **gridCell) {
+    PersonNode *node = malloc(sizeof(PersonNode));
+    if(!node) {
+        printf("Eroare la alocare dinamica nod pentru persoana cu index %d\n", personIndex);
+        exit(-1);
+    }
+
+    node->personIndex = personIndex;
+    node->next = *gridCell;
+    *gridCell = node;
+}
+
+void printGrid(PersonNode ***grid, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->maxXCoord;i++) {
+        for(int j=0;j<simulation->maxYCoord;j++) {
+            // printPersonNode(grid[i][j]);
+            printf("[%d][%d]: ", i, j);
+            printList(grid[i][j], person);
+        }
+        printf("\n");
+    }
+}
+
+void printList(PersonNode* node, Person *person) {
+    PersonNode *traverser = node;
+    while(traverser != NULL) {
+        printf("(%d, %d) ", traverser->personIndex + 1, person[traverser->personIndex].status);
+        traverser = traverser->next;
+    }
+    printf("\n");
+}
+
+void freeList(PersonNode *node) {
+    if(node == NULL) return;
+
+    PersonNode *traverser = node;
+    while(traverser != NULL) {
+        node = node->next;
+        free(traverser);
+        traverser = node;
+    }
+}
+
+void printPersonNode(PersonNode *node) {
+    if(node == NULL) {
+        printf("NULL ");
+    } else {
+        printf("%d ", node->personIndex);
+    }
+}
+
+/*-----------------------------------------------------------------
+ * Function:  Update Grid
+ * Purpose:   Go through all the cells of the grid and update the locations of the persons in each one;
+            update consist of erasing the previous values for all cells, setting them to NULL and repopulating the cells by using x and y
+ * In args:   grid, person, simulation
+ */
+void updateGrid(PersonNode ***grid, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->maxXCoord;i++) {
+        for(int j=0;j<simulation->maxYCoord;j++) {
+            freeList(grid[i][j]);
+            grid[i][j] = NULL;
+        }
+    }
+
+    // parcurg array-ul
+    for(int i=0;i<simulation->numberOfPersons;i++) {
+        int x = person[i].coord.x;
+        int y = person[i].coord.y;
+        // printf("%d %d\n", x, y);
+
+        // preiau coordonatele x si y si adaug persoanele intr-o lista simplu inlantuita formata in celula x, y
+        appendPersonNode(i, &grid[x][y]);
     }
 }
 
@@ -264,34 +399,48 @@ void updateLocation(Person *person, SimulationData *simulation) {
 /*-----------------------------------------------------------------
  * Function:  Compute NextStatus
  * Purpose:   Compute the next status for a person
- * In args:   person
+ * In args:   grid, person, simulation
  */
-void computeNextStatus(Person *person, int index, SimulationData *simulation) {
-    switch (person[index].status) {
-        case INFECTED:
-            for (int i=0; i<simulation->numberOfPersons; i++) {
-                if (i != index) {
-                    if (person[i].status == SUSCEPTIBLE) {
-                        if (person[i].coord.x == person[index].coord.x) {
-                            if (person[i].coord.y == person[index].coord.y) {
-                                person[i].nextStatus = INFECTED;
-                            }
+void computeNextStatus(PersonNode ***grid, Person *person, SimulationData *simulation) {
+    for(int i=0;i<simulation->maxXCoord;i++) {
+        for(int j=0;j<simulation->maxYCoord;j++) {
+            int infectedFound = 0;
+
+            // verifica fiecare nod din lista
+            PersonNode *traverser = grid[i][j];
+            while(traverser != NULL) {
+                int index = traverser->personIndex;
+                switch(person[index].status) {
+                    case INFECTED: // daca este infectat seteaza infectedFound si daca durata a ajuns la 0 seteaza urmatoarea stare pe immune
+                        infectedFound = 1;
+                        if(person[index].statusDuration == 0) {
+                            person[index].nextStatus = IMMUNE;
                         }
-                    }
+                        break;
+                    case IMMUNE: // daca durata a ajuns la 0 seteaza pe susceptible la urmatoarea stare
+                        if(person[index].statusDuration == 0) {
+                            person[index].nextStatus = SUSCEPTIBLE;
+                        }
+                        break;
+                    case SUSCEPTIBLE: // nu trebuie facut nimic aici
+                        break;
+                }
+
+                // update reference
+                traverser = traverser->next;
+            }
+            
+            if(infectedFound) { // daca o persoana este infectata vom infecta si celelalte persoane susceptibile din aceeasi celula
+                traverser = grid[i][j];
+                while(traverser != NULL) {
+                    if(person[traverser->personIndex].status == SUSCEPTIBLE)
+                        person[traverser->personIndex].nextStatus = INFECTED;
+
+                    // update reference
+                    traverser = traverser->next;
                 }
             }
-            if (person[index].statusDuration == 0) {
-                person[index].nextStatus = IMMUNE;
-            }
-            break;
-        case IMMUNE:
-            if (person[index].statusDuration == 0) {
-                person[index].nextStatus = SUSCEPTIBLE;
-            }
-            break;
-        case SUSCEPTIBLE:
-            break;
-        default:
+        }
     }
 }
 
@@ -325,3 +474,41 @@ void updateStatus(Person *person) {
         default:
     }
 }
+
+void freeGrid(PersonNode ***grid, SimulationData *simulation) {
+    for(int i=0;i<simulation->maxXCoord;i++) {
+        free(grid[i]);
+    }
+    free(grid);
+}
+
+
+// for version 1
+// void computeNextStatus(Person *person, int index, SimulationData *simulation) {
+//     switch (person[index].status) {
+//         case INFECTED:
+//             for (int i=0; i<simulation->numberOfPersons; i++) {
+//                 if (i != index) {
+//                     if (person[i].status == SUSCEPTIBLE) {
+//                         if (person[i].coord.x == person[index].coord.x) {
+//                             if (person[i].coord.y == person[index].coord.y) {
+//                                 person[i].nextStatus = INFECTED;
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//             if (person[index].statusDuration == 0) {
+//                 person[index].nextStatus = IMMUNE;
+//             }
+//             break;
+//         case IMMUNE:
+//             if (person[index].statusDuration == 0) {
+//                 person[index].nextStatus = SUSCEPTIBLE;
+//             }
+//             break;
+//         case SUSCEPTIBLE:
+//             break;
+//         default:
+//     }
+// }
