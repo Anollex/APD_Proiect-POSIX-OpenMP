@@ -8,6 +8,9 @@
 
 #define TOTAL_ARGUMENT_COUNT 4
 
+#define SERIAL_PATH_SUFFIX "_serial_out.txt"
+#define PARALLEL_PATH_SUFFIX "_parallel_out.txt"
+
 // #define DEBUG
 // #define DEBUG_GRID
 
@@ -74,15 +77,16 @@ void printList(PersonNode* node, Person *person);
 void freeGrid(PersonNode ***grid, SimulationData *simulation);
 void freeList(PersonNode *node);
 
+char *buildOutputPath(char *inputPath, char *suffix);
 
 int main(int argc, const char *argv[]) {
     if(argc != TOTAL_ARGUMENT_COUNT) {
         Usage();
     }
     
-    SimulationData simulation;
     char *path = argv[2];
-    char *outputPath = "file_serial_out.txt";
+    // char *serialOutputPath = "file_serial_out.txt";
+    char *serialOutputPath = buildOutputPath(path, SERIAL_PATH_SUFFIX);
 
     FILE *inputFile = fopen(path, "r");
     if(!inputFile) {
@@ -91,6 +95,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // init simulation and read person data
+    SimulationData simulation;
     simulation.simulationTime = atoi(argv[1]);
     simulationScan(inputFile, &simulation);
 
@@ -116,13 +121,13 @@ int main(int argc, const char *argv[]) {
 
     personScan(inputFile, person, &simulation);
 
-    initGrid(grid, person, &simulation);
-    // printGrid(grid, &simulation);
-
     if(fclose(inputFile) != 0) {
         perror("File could not be closed\n");
         exit(-1);
     }
+
+    initGrid(grid, person, &simulation);
+    // printGrid(grid, &simulation);
 
     struct timespec start, finish;
     double time = 0;
@@ -137,7 +142,7 @@ int main(int argc, const char *argv[]) {
     time += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
     printf("Time: %lf\n", time);
 
-    FILE *outputFile = fopen(outputPath, "w");
+    FILE *outputFile = fopen(serialOutputPath, "w");
     if(!outputFile) {
         printf("File not found!\n");
         exit(-1);
@@ -482,6 +487,38 @@ void freeGrid(PersonNode ***grid, SimulationData *simulation) {
     free(grid);
 }
 
+int getIndexForChar(char *string, char c) {
+    int stringLength = strlen(string);
+
+    for(int i=0;i<stringLength;i++) {
+        if(string[i] == c) return i;
+    }
+
+    return -1;
+}
+
+char *buildOutputPath(char *inputPath, char *suffix) {
+    int inputPathLength = strlen(inputPath);
+    int suffixLength = strlen(suffix);
+
+    char *ret = malloc((inputPathLength + suffixLength + 1) * sizeof(char));
+    if(!ret) {
+        printf("Eroare la alocare string de output\n");
+        exit(-1);
+    }
+
+    int inputPathCutoff = getIndexForChar(inputPath, '.'); // vreau sa copiez fara .txt deci iau indexul punctului ca sa copiez doar pana acolo
+    if(inputPathCutoff == -1) {
+        printf("Fisierul nu are nume corespunzator - trebuie sa aiba o extensie cu '.'\n");
+        exit(-1);
+    }
+
+    strncpy(ret, inputPath, inputPathCutoff);
+    ret[inputPathCutoff] = '\0';
+    strcat(ret, suffix);
+
+    return ret;
+}
 
 // for version 1
 // void computeNextStatus(Person *person, int index, SimulationData *simulation) {
